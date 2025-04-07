@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\str;
 use Illuminate\Support\Facades\File;
 use Intervention\Image\Laravel\Facades\Image;
+use Illuminate\Support\Facades\Schema;
 
 class AdminController extends Controller
 {
