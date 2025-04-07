@@ -46,7 +46,7 @@
     <div class="container mw-1620 bg-white border-radius-10">
       <div class="mb-3 mb-xl-5 pt-1 pb-4"></div>
       <section class="category-carousel container">
-        <h2 class="section-title text-center mb-3 pb-xl-2 mb-xl-4">You Might Like</h2>
+        <h2 class="section-title text-center mb-3 pb-xl-2 mb-xl-4">You Might Like LIKE AND SUBSCRIBE</h2>
 
         <div class="position-relative">
           <div class="swiper-container js-swiper-slider" data-settings='{
