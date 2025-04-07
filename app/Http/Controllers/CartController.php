@@ -280,7 +280,7 @@ class CartController extends Controller
         $transaction->user_id = $user_id;
         $transaction->order_id = $order->id;
         $transaction->mode = "paypal";
-        $transaction->status = "paid";
+        $transaction->status = "pending";
         $transaction->save();
 
         Cart::instance('cart')->destroy();
