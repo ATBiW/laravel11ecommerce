@@ -21,7 +21,7 @@ class MonthSeeder extends Seeder
             ['name'=>'May'],
             ['name'=>'June'],
             ['name'=>'July'],
-            ['name'=>'Agust'],
+            ['name'=>'August'],
             ['name'=>'September'],
             ['name'=>'October'],
             ['name'=>'November'],
