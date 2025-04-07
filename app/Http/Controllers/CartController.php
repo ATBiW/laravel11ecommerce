@@ -279,7 +279,7 @@ class CartController extends Controller
         $transaction = new Transaction();
         $transaction->user_id = $user_id;
         $transaction->order_id = $order->id;
-        $transaction->mode = "online";
+        $transaction->mode = "paypal";
         $transaction->status = "paid";
         $transaction->save();
 
