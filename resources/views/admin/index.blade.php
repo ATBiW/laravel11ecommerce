@@ -146,7 +146,9 @@
                                 </div>
                             </div>
                             <div class="flex items-center gap10">
-                                <h4>Rp {{ number_format($dashboardDatas[0]->TotalAmount, 0, ',', '.') }}</h4>
+                                <h4>Rp
+                                    {{ isset($dashboardDatas[0]->TotalAmount) ? number_format($dashboardDatas[0]->TotalAmount, 0, ',', '.') : '0' }}
+                                </h4>
                             </div>
                         </div>
                         <div>
@@ -157,29 +159,35 @@
                                 </div>
                             </div>
                             <div class="flex items-center gap10">
-                                <h4>Rp {{ number_format($dashboardDatas[0]->TotalOrderedAmount, 0, ',', '.') }}</h4>
+                                <h4>Rp
+                                    {{ isset($dashboardDatas[0]->TotalOrderedAmount) ? number_format($dashboardDatas[0]->TotalOrderedAmount, 0, ',', '.') : '0' }}
+                                </h4>
                             </div>
                         </div>
                         <div>
                             <div class="mb-2">
                                 <div class="block-legend">
-                                    <div class="dot t2"></div>
+                                    <div class="dot t3"></div>
                                     <div class="text-tiny">Order Dikirim</div>
                                 </div>
                             </div>
                             <div class="flex items-center gap10">
-                                <h4>Rp {{ number_format($dashboardDatas[0]->TotalDeliveredAmount, 0, ',', '.') }}</h4>
+                                <h4>Rp
+                                    {{ isset($dashboardDatas[0]->TotalDeliveredAmount) ? number_format($dashboardDatas[0]->TotalDeliveredAmount, 0, ',', '.') : '0' }}
+                                </h4>
                             </div>
                         </div>
                         <div>
                             <div class="mb-2">
                                 <div class="block-legend">
-                                    <div class="dot t2"></div>
+                                    <div class="dot t4"></div>
                                     <div class="text-tiny">Order Dibatalkan</div>
                                 </div>
                             </div>
                             <div class="flex items-center gap10">
-                                <h4>Rp {{ number_format($dashboardDatas[0]->TotalCanceledAmount, 0, ',', '.') }}</h4>
+                                <h4>Rp
+                                    {{ isset($dashboardDatas[0]->TotalCanceledAmount) ? number_format($dashboardDatas[0]->TotalCanceledAmount, 0, ',', '.') : '0' }}
+                                </h4>
                             </div>
                         </div>
                     </div>
@@ -255,19 +263,29 @@
         (function($) {
             var tfLineChart = (function() {
                 var chartBar = function() {
+                    // Memeriksa apakah data tersedia dan membuat nilai default jika tidak ada
+                    var totalAmount =
+                        {{ isset($dashboardDatas[0]->TotalAmount) ? $dashboardDatas[0]->TotalAmount : 0 }};
+                    var totalOrderedAmount =
+                        {{ isset($dashboardDatas[0]->TotalOrderedAmount) ? $dashboardDatas[0]->TotalOrderedAmount : 0 }};
+                    var totalDeliveredAmount =
+                        {{ isset($dashboardDatas[0]->TotalDeliveredAmount) ? $dashboardDatas[0]->TotalDeliveredAmount : 0 }};
+                    var totalCanceledAmount =
+                        {{ isset($dashboardDatas[0]->TotalCanceledAmount) ? $dashboardDatas[0]->TotalCanceledAmount : 0 }};
+
                     var options = {
                         series: [{
                             name: 'Total Order',
-                            data: [{{ $dashboardDatas[0]->TotalAmount }}]
+                            data: [totalAmount]
                         }, {
                             name: 'Order Pending',
-                            data: [{{ $dashboardDatas[0]->TotalOrderedAmount }}]
+                            data: [totalOrderedAmount]
                         }, {
                             name: 'Order Delivered',
-                            data: [{{ $dashboardDatas[0]->TotalDeliveredAmount }}]
+                            data: [totalDeliveredAmount]
                         }, {
                             name: 'Order Canceled',
-                            data: [{{ $dashboardDatas[0]->TotalCanceledAmount }}]
+                            data: [totalCanceledAmount]
                         }],
                         chart: {
                             type: 'bar',
@@ -332,7 +350,8 @@
                         dataLabels: {
                             enabled: true,
                             formatter: function(val) {
-                                return "Rp " + val.toLocaleString('id-ID');
+                                // Menggunakan fungsi untuk format angka dengan titik pemisah ribuan
+                                return "Rp " + formatRupiah(val);
                             },
                             offsetY: -20,
                             style: {
@@ -389,7 +408,7 @@
                                     fontSize: '12px'
                                 },
                                 formatter: function(val) {
-                                    return "Rp " + val.toLocaleString('id-ID');
+                                    return "Rp " + formatRupiah(val);
                                 }
                             },
                             axisBorder: {
@@ -420,7 +439,7 @@
                         tooltip: {
                             y: {
                                 formatter: function(val) {
-                                    return "Rp " + val.toLocaleString('id-ID');
+                                    return "Rp " + formatRupiah(val);
                                 }
                             },
                             theme: 'light',
@@ -470,6 +489,23 @@
                             }
                         }]
                     };
+
+                    // Fungsi untuk format angka dengan titik sebagai pemisah ribuan
+                    function formatRupiah(angka) {
+                        var number_string = angka.toString(),
+                            split = number_string.split(','),
+                            sisa = split[0].length % 3,
+                            rupiah = split[0].substr(0, sisa),
+                            ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+                        if (ribuan) {
+                            separator = sisa ? '.' : '';
+                            rupiah += separator + ribuan.join('.');
+                        }
+
+                        rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+                        return rupiah;
+                    }
 
                     var chart = new ApexCharts(
                         document.querySelector("#line-chart-8"),

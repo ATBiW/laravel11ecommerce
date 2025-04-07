@@ -24,7 +24,25 @@ class AdminController extends Controller
     public function index()
     {
         $orders = Order::orderBy('created_at', 'DESC')->get()->take(10);
-        $dashboardDatas = DB::select("Select sum(total) As TotalAmount,
+
+        // Inisialisasi nilai default untuk dashboardDatas jika query gagal
+        $dashboardDatas = [
+            (object) [
+                'TotalAmount' => 0,
+                'TotalOrderedAmount' => 0,
+                'TotalDeliveredAmount' => 0,
+                'TotalCanceledAmount' => 0,
+                'Total' => 0,
+                'TotalOrdered' => 0,
+                'TotalDelivered' => 0,
+                'TotalCanceled' => 0
+            ]
+        ];
+
+        try {
+            // Periksa apakah tabel 'Orders' ada
+            if (Schema::hasTable('Orders')) {
+                $dashboardDatas = DB::select("Select sum(total) As TotalAmount,
                                     sum(if(status='ordered',total,0)) As TotalOrderedAmount,
                                     sum(if(status='delivered',total,0)) As TotalDeliveredAmount,
                                     sum(if(status='canceled',total,0)) As TotalCanceledAmount,
@@ -34,8 +52,19 @@ class AdminController extends Controller
                                     sum(if(status='canceled',1,0)) As TotalCanceled
                                     From Orders
                                     ");
+            }
+        } catch (\Exception $e) {
+            // Log error
+            \Log::error('Error fetching dashboard data: ' . $e->getMessage());
+        }
 
-        $monthlyDatas = DB::select("SELECT M.id As MonthNo, M.name As MonthName,
+        // Inisialisasi nilai default untuk monthlyData
+        $monthlyDatas = [];
+
+        try {
+            // Periksa apakah tabel 'month_names' dan 'Orders' ada
+            if (Schema::hasTable('month_names') && Schema::hasTable('Orders')) {
+                $monthlyDatas = DB::select("SELECT M.id As MonthNo, M.name As MonthName,
                                     IFNULL(D.TotalAmount,0) As TotalAmount,
                                     IFNULL(D.TotalOrderedAmount,0) As TotalOrderedAmount,
                                     IFNULL(D.TotalDeliveredAmount,0) As TotalDeliveredAmount,
@@ -48,16 +77,46 @@ class AdminController extends Controller
                                     sum(if(status='canceled',total,0)) As TotalCanceledAmount
                                     From Orders WHERE YEAR(created_at)=YEAR(NOW()) GROUP BY YEAR(created_at), MONTH(created_at), DATE_FORMAT(created_at, '%b')
                                     Order By MONTH(created_at)) D On D.MonthNo=M.id");
+            } else {
+                // Buat data dummy untuk 12 bulan
+                for ($i = 1; $i <= 12; $i++) {
+                    $monthlyDatas[] = (object) [
+                        'MonthNo' => $i,
+                        'MonthName' => date('M', mktime(0, 0, 0, $i, 10)),
+                        'TotalAmount' => 0,
+                        'TotalOrderedAmount' => 0,
+                        'TotalDeliveredAmount' => 0,
+                        'TotalCanceledAmount' => 0
+                    ];
+                }
+            }
+        } catch (\Exception $e) {
+            // Log error
+            \Log::error('Error fetching monthly data: ' . $e->getMessage());
 
-        $AmountM = implode(',', collect($monthlyDatas)->pluck('TotalAmount')->toArray());
-        $OrderedAmountM = implode(',', collect($monthlyDatas)->pluck('TotalOrderedAmount')->toArray());
-        $DeliveredAmountM = implode(',', collect($monthlyDatas)->pluck('TotalDeliveredAmount')->toArray());
-        $CanceledAmountM = implode(',', collect($monthlyDatas)->pluck('TotalCanceledAmount')->toArray());
+            // Buat data dummy untuk 12 bulan jika terjadi error
+            for ($i = 1; $i <= 12; $i++) {
+                $monthlyDatas[] = (object) [
+                    'MonthNo' => $i,
+                    'MonthName' => date('M', mktime(0, 0, 0, $i, 10)),
+                    'TotalAmount' => 0,
+                    'TotalOrderedAmount' => 0,
+                    'TotalDeliveredAmount' => 0,
+                    'TotalCanceledAmount' => 0
+                ];
+            }
+        }
 
-        $TotalAmount = collect($monthlyDatas)->sum('TotalAmount');
-        $TotalOrderedAmount = collect($monthlyDatas)->sum('TotalOrderedAmount');
-        $TotalDeliveredAmount = collect($monthlyDatas)->sum('TotalDeliveredAmount');
-        $TotalCanceledAmount = collect($monthlyDatas)->sum('TotalCanceledAmount');
+        // Hitung atau gunakan nilai default jika tidak ada data
+        $AmountM = !empty($monthlyDatas) ? implode(',', collect($monthlyDatas)->pluck('TotalAmount')->toArray()) : '0,0,0,0,0,0,0,0,0,0,0,0';
+        $OrderedAmountM = !empty($monthlyDatas) ? implode(',', collect($monthlyDatas)->pluck('TotalOrderedAmount')->toArray()) : '0,0,0,0,0,0,0,0,0,0,0,0';
+        $DeliveredAmountM = !empty($monthlyDatas) ? implode(',', collect($monthlyDatas)->pluck('TotalDeliveredAmount')->toArray()) : '0,0,0,0,0,0,0,0,0,0,0,0';
+        $CanceledAmountM = !empty($monthlyDatas) ? implode(',', collect($monthlyDatas)->pluck('TotalCanceledAmount')->toArray()) : '0,0,0,0,0,0,0,0,0,0,0,0';
+
+        $TotalAmount = !empty($monthlyDatas) ? collect($monthlyDatas)->sum('TotalAmount') : 0;
+        $TotalOrderedAmount = !empty($monthlyDatas) ? collect($monthlyDatas)->sum('TotalOrderedAmount') : 0;
+        $TotalDeliveredAmount = !empty($monthlyDatas) ? collect($monthlyDatas)->sum('TotalDeliveredAmount') : 0;
+        $TotalCanceledAmount = !empty($monthlyDatas) ? collect($monthlyDatas)->sum('TotalCanceledAmount') : 0;
 
         return view('admin.index', compact('orders', 'dashboardDatas', 'AmountM', 'OrderedAmountM', 'DeliveredAmountM', 'CanceledAmountM', 'TotalAmount', 'TotalOrderedAmount', 'TotalDeliveredAmount', 'TotalCanceledAmount'));
     }
