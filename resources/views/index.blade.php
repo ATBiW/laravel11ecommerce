@@ -121,8 +121,8 @@
         <div class="row">
           <div
             class="col-md-6 col-lg-4 col-xl-20per d-flex align-items-center flex-column justify-content-center py-4 align-items-md-start">
-            <h2>Summer Sale</h2>
-            <h2 class="fw-bold">Up to 60% Off</h2>
+            <h2>Ramadan Sale</h2>
+            <h2 class="fw-bold">Up to 40% Off</h2>
 
             <div class="position-relative d-flex align-items-center text-center pt-xxl-4 js-countdown mb-3"
               data-date="18-3-2024" data-time="06:50">
@@ -218,7 +218,7 @@
 
       <div class="mb-3 mb-xl-5 pt-1 pb-4"></div>
 
-      <section class="category-banner container">
+      {{-- <section class="category-banner container">
         <div class="row">
           <div class="col-md-6">
             <div class="category-banner__item border-radius-10 mb-5">
@@ -247,7 +247,7 @@
             </div>
           </div>
         </div>
-      </section>
+      </section> --}}
 
       <div class="mb-3 mb-xl-5 pt-1 pb-4"></div>
 

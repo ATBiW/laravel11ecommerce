@@ -115,8 +115,13 @@
                                         </li>
                                     </ul>
                                 </li>
-
-                                <li class="menu-item has-children">
+                                <li class="menu-item">
+                                    <a href="{{route('admin.orders')}}" class="">
+                                        <div class="icon"><i class="icon-image"></i></div>
+                                        <div class="text">Orders</div>
+                                    </a>
+                                </li>
+                                {{-- <li class="menu-item has-children">
                                     <a href="javascript:void(0);" class="menu-item-button">
                                         <div class="icon"><i class="icon-file-plus"></i></div>
                                         <div class="text">Order</div>
@@ -133,7 +138,7 @@
                                             </a>
                                         </li>
                                     </ul>
-                                </li>
+                                </li> --}}
                                 <li class="menu-item">
                                     <a href="{{route('admin.slides')}}" class="">
                                         <div class="icon"><i class="icon-image"></i></div>
